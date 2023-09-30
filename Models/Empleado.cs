@@ -4,14 +4,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Schedls.Models
 {
-    [Table("Empleados")]
+    [NotMapped]
     public class Empleado
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int EmpleadoId { get; set; }
-        [Required]
         public string Nombre { get; set; }
-        [Required]
         public string Apellido { get; set; }
+        public string Correo { get; set; }
+
+        public static explicit operator Empleado(Usuario usuario)
+        {
+            return new Empleado
+            {
+                EmpleadoId = usuario.UsuarioId,
+                Nombre = usuario.Nombre,
+                Apellido = usuario.Apellido,
+                Correo = usuario.Correo,
+            };
+        }
     }
 }

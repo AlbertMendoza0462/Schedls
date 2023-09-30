@@ -22,53 +22,6 @@ namespace Schedls.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Schedls.Models.Asignacion", b =>
-                {
-                    b.Property<int>("AsignacionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AsignacionId"));
-
-                    b.Property<int>("EmpleadoId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("FechaAsignado")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TurnoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AsignacionId");
-
-                    b.HasIndex("EmpleadoId");
-
-                    b.HasIndex("TurnoId");
-
-                    b.ToTable("Asignaciones");
-                });
-
-            modelBuilder.Entity("Schedls.Models.Empleado", b =>
-                {
-                    b.Property<int>("EmpleadoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmpleadoId"));
-
-                    b.Property<string>("Apellido")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("EmpleadoId");
-
-                    b.ToTable("Empleados");
-                });
-
             modelBuilder.Entity("Schedls.Models.EstadoSolicitud", b =>
                 {
                     b.Property<int>("EstadoSolicitudId")
@@ -129,13 +82,16 @@ namespace Schedls.Migrations
                     b.Property<string>("Comentario")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EmpleadoId")
-                        .HasColumnType("int");
-
                     b.Property<int>("EstadoSolicitudId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("FechaSolicitud")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaTurnoActual")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaTurnoSolicitado")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Motivo")
@@ -148,9 +104,10 @@ namespace Schedls.Migrations
                     b.Property<int>("TurnoSolicitadoId")
                         .HasColumnType("int");
 
-                    b.HasKey("SolicitudCambioId");
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("EmpleadoId");
+                    b.HasKey("SolicitudCambioId");
 
                     b.HasIndex("EstadoSolicitudId");
 
@@ -158,7 +115,24 @@ namespace Schedls.Migrations
 
                     b.HasIndex("TurnoSolicitadoId");
 
-                    b.ToTable("SolcitudesCambios");
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("SolicitudesCambios");
+
+                    b.HasData(
+                        new
+                        {
+                            SolicitudCambioId = 1,
+                            Comentario = "",
+                            EstadoSolicitudId = 1,
+                            FechaSolicitud = new DateTime(2023, 9, 11, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaTurnoActual = new DateTime(2023, 9, 14, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            FechaTurnoSolicitado = new DateTime(2023, 9, 14, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            Motivo = "Para hacer el curso de inglés.",
+                            TurnoActualId = 1,
+                            TurnoSolicitadoId = 4,
+                            UsuarioId = 1
+                        });
                 });
 
             modelBuilder.Entity("Schedls.Models.TipoTurno", b =>
@@ -210,49 +184,277 @@ namespace Schedls.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TurnoId"));
 
-                    b.Property<DateTime>("FechaFin")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("CantHorasEnDiaDeSemana")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CantHorasEnFinDeSemana")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaInicio")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("IntervaloDeDias")
+                        .HasColumnType("int");
+
                     b.Property<int>("TipoTurnoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
                     b.HasKey("TurnoId");
 
                     b.HasIndex("TipoTurnoId");
 
+                    b.HasIndex("UsuarioId");
+
                     b.ToTable("Turnos");
+
+                    b.HasData(
+                        new
+                        {
+                            TurnoId = 1,
+                            CantHorasEnDiaDeSemana = "09:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 14, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 1,
+                            UsuarioId = 1
+                        },
+                        new
+                        {
+                            TurnoId = 2,
+                            CantHorasEnDiaDeSemana = "08:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 15, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 2,
+                            UsuarioId = 1
+                        },
+                        new
+                        {
+                            TurnoId = 3,
+                            CantHorasEnDiaDeSemana = "08:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 3,
+                            UsuarioId = 1
+                        },
+                        new
+                        {
+                            TurnoId = 4,
+                            CantHorasEnDiaDeSemana = "08:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 14, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 2,
+                            UsuarioId = 5
+                        },
+                        new
+                        {
+                            TurnoId = 5,
+                            CantHorasEnDiaDeSemana = "08:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 3,
+                            UsuarioId = 5
+                        },
+                        new
+                        {
+                            TurnoId = 6,
+                            CantHorasEnDiaDeSemana = "09:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 18, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 1,
+                            UsuarioId = 5
+                        },
+                        new
+                        {
+                            TurnoId = 7,
+                            CantHorasEnDiaDeSemana = "08:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 18, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 2,
+                            UsuarioId = 4
+                        },
+                        new
+                        {
+                            TurnoId = 8,
+                            CantHorasEnDiaDeSemana = "09:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 17, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 1,
+                            UsuarioId = 4
+                        },
+                        new
+                        {
+                            TurnoId = 9,
+                            CantHorasEnDiaDeSemana = "08:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 3,
+                            UsuarioId = 4
+                        },
+                        new
+                        {
+                            TurnoId = 10,
+                            CantHorasEnDiaDeSemana = "08:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 3,
+                            UsuarioId = 3
+                        },
+                        new
+                        {
+                            TurnoId = 11,
+                            CantHorasEnDiaDeSemana = "09:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 16, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 1,
+                            UsuarioId = 3
+                        },
+                        new
+                        {
+                            TurnoId = 12,
+                            CantHorasEnDiaDeSemana = "08:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 17, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 2,
+                            UsuarioId = 3
+                        },
+                        new
+                        {
+                            TurnoId = 13,
+                            CantHorasEnDiaDeSemana = "09:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 15, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 1,
+                            UsuarioId = 2
+                        },
+                        new
+                        {
+                            TurnoId = 14,
+                            CantHorasEnDiaDeSemana = "08:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 16, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 2,
+                            UsuarioId = 2
+                        },
+                        new
+                        {
+                            TurnoId = 15,
+                            CantHorasEnDiaDeSemana = "08:00:00",
+                            CantHorasEnFinDeSemana = "08:00:00",
+                            FechaInicio = new DateTime(2023, 9, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IntervaloDeDias = 5,
+                            TipoTurnoId = 3,
+                            UsuarioId = 2
+                        });
                 });
 
-            modelBuilder.Entity("Schedls.Models.Asignacion", b =>
+            modelBuilder.Entity("Schedls.Models.Usuario", b =>
                 {
-                    b.HasOne("Schedls.Models.Empleado", "Empleado")
-                        .WithMany()
-                        .HasForeignKey("EmpleadoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<int>("UsuarioId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.HasOne("Schedls.Models.Turno", "Turno")
-                        .WithMany()
-                        .HasForeignKey("TurnoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UsuarioId"));
 
-                    b.Navigation("Empleado");
+                    b.Property<string>("Apellido")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Navigation("Turno");
+                    b.Property<string>("Clave")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Correo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UltimoTokenValido")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UsuarioId");
+
+                    b.ToTable("Usuarios");
+
+                    b.HasData(
+                        new
+                        {
+                            UsuarioId = 1,
+                            Apellido = "Mendoza",
+                            Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+                            Correo = "albert@gmail.com",
+                            Nombre = "Albert",
+                            UltimoTokenValido = ""
+                        },
+                        new
+                        {
+                            UsuarioId = 2,
+                            Apellido = "Liriano",
+                            Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+                            Correo = "deninson@gmail.com",
+                            Nombre = "Deninson",
+                            UltimoTokenValido = ""
+                        },
+                        new
+                        {
+                            UsuarioId = 3,
+                            Apellido = "Mendez",
+                            Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+                            Correo = "domingo@gmail.com",
+                            Nombre = "Domingo",
+                            UltimoTokenValido = ""
+                        },
+                        new
+                        {
+                            UsuarioId = 4,
+                            Apellido = "Goris",
+                            Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+                            Correo = "frank@gmail.com",
+                            Nombre = "Frank",
+                            UltimoTokenValido = ""
+                        },
+                        new
+                        {
+                            UsuarioId = 5,
+                            Apellido = "Bonifacio",
+                            Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+                            Correo = "danilo@gmail.com",
+                            Nombre = "Danilo",
+                            UltimoTokenValido = ""
+                        },
+                        new
+                        {
+                            UsuarioId = 6,
+                            Apellido = "Castillo",
+                            Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+                            Correo = "eliot@gmail.com",
+                            Nombre = "Eliot",
+                            UltimoTokenValido = ""
+                        });
                 });
 
             modelBuilder.Entity("Schedls.Models.SolicitudCambio", b =>
                 {
-                    b.HasOne("Schedls.Models.Empleado", "Empleado")
-                        .WithMany()
-                        .HasForeignKey("EmpleadoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Schedls.Models.EstadoSolicitud", "EstadoSolicitud")
                         .WithMany()
                         .HasForeignKey("EstadoSolicitudId")
@@ -271,13 +473,19 @@ namespace Schedls.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Empleado");
+                    b.HasOne("Schedls.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("EstadoSolicitud");
 
                     b.Navigation("TurnoActual");
 
                     b.Navigation("TurnoSolicitado");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("Schedls.Models.Turno", b =>
@@ -288,7 +496,15 @@ namespace Schedls.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Schedls.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("TipoTurno");
+
+                    b.Navigation("Usuario");
                 });
 #pragma warning restore 612, 618
         }

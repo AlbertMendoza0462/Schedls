@@ -13,51 +13,108 @@ namespace Schedls.BLL
             _contexto = contexto;
         }
 
-        public bool Existe(int solicitudCambioId)
+        public async Task<bool> Existe(int solicitudCambioId)
         {
-            return _contexto.SolicitudesCambios
-                .Any(solicitudCambio => solicitudCambio.SolicitudCambioId == solicitudCambioId);
-        }
-
-        public SolicitudCambio? Buscar(int solicitudCambioId)
-        {
-            return _contexto.SolicitudesCambios
-                .Where(solicitudCambio => solicitudCambio.SolicitudCambioId == solicitudCambioId)
+            return await _contexto.SolicitudesCambios
                 .AsNoTracking()
-                .SingleOrDefault();
+                .AnyAsync(solicitudCambio => solicitudCambio.SolicitudCambioId == solicitudCambioId);
         }
 
-        public List<SolicitudCambio> Listar()
+        public async Task<SolicitudCambio?> Buscar(int solicitudCambioId)
         {
-            return _contexto.SolicitudesCambios
+            return await _contexto.SolicitudesCambios
+                .Include(solicitudCambio => solicitudCambio.Usuario)
+                .Include(solicitudCambio => solicitudCambio.TurnoActual)
+                .Include(solicitudCambio => solicitudCambio.TurnoActual.Usuario)
+                .Include(solicitudCambio => solicitudCambio.TurnoActual.TipoTurno)
+                .Include(solicitudCambio => solicitudCambio.TurnoSolicitado)
+                .Include(solicitudCambio => solicitudCambio.TurnoSolicitado.Usuario)
+                .Include(solicitudCambio => solicitudCambio.TurnoSolicitado.TipoTurno)
+                .Include(solicitudCambio => solicitudCambio.EstadoSolicitud)
+                .Include(solicitudCambio => solicitudCambio.Usuario)
                 .AsNoTracking()
-                .ToList();
+                .FirstOrDefaultAsync(solicitudCambio => solicitudCambio.SolicitudCambioId == solicitudCambioId);
         }
 
-        public bool Insertar(SolicitudCambio solicitudCambio)
+        public async Task<List<SolicitudCambio>> Listar()
+        {
+            return await _contexto.SolicitudesCambios
+                .Include(solicitudCambio => solicitudCambio.Usuario)
+                .Include(solicitudCambio => solicitudCambio.TurnoActual)
+                .Include(solicitudCambio => solicitudCambio.TurnoActual.Usuario)
+                .Include(solicitudCambio => solicitudCambio.TurnoActual.TipoTurno)
+                .Include(solicitudCambio => solicitudCambio.TurnoSolicitado)
+                .Include(solicitudCambio => solicitudCambio.TurnoSolicitado.Usuario)
+                .Include(solicitudCambio => solicitudCambio.TurnoSolicitado.TipoTurno)
+                .Include(solicitudCambio => solicitudCambio.EstadoSolicitud)
+                .Include(solicitudCambio => solicitudCambio.Usuario)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+        public async Task<List<EventoRecurrente>> ListarAprobadas()
+        {
+            var solicitudes = await _contexto.SolicitudesCambios
+                .Where(solicitudCambio => solicitudCambio.EstadoSolicitudId == 1)
+                .Include(solicitudCambio => solicitudCambio.Usuario)
+                .Include(solicitudCambio => solicitudCambio.TurnoActual)
+                .Include(solicitudCambio => solicitudCambio.TurnoActual.Usuario)
+                .Include(solicitudCambio => solicitudCambio.TurnoActual.TipoTurno)
+                .Include(solicitudCambio => solicitudCambio.TurnoSolicitado)
+                .Include(solicitudCambio => solicitudCambio.TurnoSolicitado.Usuario)
+                .Include(solicitudCambio => solicitudCambio.TurnoSolicitado.TipoTurno)
+                .Include(solicitudCambio => solicitudCambio.EstadoSolicitud)
+                //.Include(solicitudCambio => solicitudCambio.Usuario)
+                .AsNoTracking()
+                .ToListAsync();
+            await Console.Out.WriteLineAsync(solicitudes != null ? "si" : "no");
+
+            return SolicitudCambio.toEventList(solicitudes);
+        }
+
+        public async Task<bool> Insertar(SolicitudCambio solicitudCambio)
         {
             _contexto.Add(solicitudCambio);
-            var guardo = _contexto.SaveChanges() > 0;
+            var guardo = await _contexto.SaveChangesAsync() > 0;
             _contexto.Entry(solicitudCambio).State = EntityState.Detached;
             return guardo;
         }
 
-        public bool Modificar(SolicitudCambio solicitudCambio)
+        public async Task<bool> Modificar(SolicitudCambio solicitudCambio)
         {
             _contexto.Entry(solicitudCambio).State = EntityState.Modified;
-            var guardo = _contexto.SaveChanges() > 0;
+            var guardo = await _contexto.SaveChangesAsync() > 0;
             _contexto.Entry(solicitudCambio).State = EntityState.Detached;
             return guardo;
         }
 
-        public bool Guardar(SolicitudCambio solicitudCambio)
+        public async Task<bool> CambiarEstado(SolicitudCambio sol)
         {
-            return (!Existe(solicitudCambio.SolicitudCambioId)) ? Insertar(solicitudCambio) : Modificar(solicitudCambio);
+            var solicitudCambio = await Buscar(sol.SolicitudCambioId);
+
+            solicitudCambio.EstadoSolicitudId = sol.EstadoSolicitudId;
+
+            _contexto.Entry(solicitudCambio).State = EntityState.Modified;
+            var guardo = await _contexto.SaveChangesAsync() > 0;
+            _contexto.Entry(solicitudCambio).State = EntityState.Detached;
+            return guardo;
         }
-        public bool Eliminar(SolicitudCambio solicitudCambio)
+
+        public async Task<bool> Guardar(SolicitudCambio solicitudCambio)
+        {
+            var existe = await Existe(solicitudCambio.SolicitudCambioId);
+            if (!existe)
+            {
+                return await Insertar(solicitudCambio);
+            }
+            else
+            {
+                return await Modificar(solicitudCambio);
+            }
+        }
+        public async Task<bool> Eliminar(SolicitudCambio solicitudCambio)
         {
             _contexto.Entry(solicitudCambio).State = EntityState.Deleted;
-            var guardo = _contexto.SaveChanges() > 0;
+            var guardo = await _contexto.SaveChangesAsync() > 0;
             _contexto.Entry(solicitudCambio).State = EntityState.Detached;
             return guardo;
         }

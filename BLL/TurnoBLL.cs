@@ -13,51 +13,88 @@ namespace Schedls.BLL
             _contexto = contexto;
         }
 
-        public bool Existe(int turnoId)
+        public async Task<bool> Existe(int turnoId)
         {
-            return _contexto.Turnos
-                .Any(turno => turno.TurnoId == turnoId);
-        }
-
-        public Turno? Buscar(int turnoId)
-        {
-            return _contexto.Turnos
-                .Where(turno => turno.TurnoId == turnoId)
+            return await _contexto.Turnos
                 .AsNoTracking()
-                .SingleOrDefault();
+                .AnyAsync(turno => turno.TurnoId == turnoId);
         }
 
-        public List<Turno> Listar()
+        public async Task<Turno?> Buscar(int turnoId)
         {
-            return _contexto.Turnos
+            return await _contexto.Turnos
+                .Include(turno => turno.TipoTurno)
+                .Include(turno => turno.Usuario)
                 .AsNoTracking()
-                .ToList();
+                .FirstOrDefaultAsync(turno => turno.TurnoId == turnoId);
         }
 
-        public bool Insertar(Turno turno)
+        public async Task<List<Turno>> Listar()
+        {
+            return await _contexto.Turnos
+                .Include(turno => turno.TipoTurno)
+                .Include(turno => turno.Usuario)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<List<EventoRecurrente>> ListarEventos(List<EventoRecurrente> aprobadas)
+        {
+            var turnos = await _contexto.Turnos
+                .Include(turno => turno.TipoTurno)
+                .Include(turno => turno.Usuario)
+                .Select(turno => (EventoRecurrente)turno)
+                .AsNoTracking()
+                .ToListAsync();
+
+            turnos.ForEach((turno) =>
+            {
+                var encontradas = aprobadas.FindAll((e) => e.Id == turno.Id);
+                if (encontradas != null)
+                {
+                    encontradas.ForEach((encontrada) =>
+                    {
+                        turno.Exdate.Add(encontrada.rrule.Dtstart);
+
+                    });
+                }
+            });
+
+            return turnos;
+        }
+
+        public async Task<bool> Insertar(Turno turno)
         {
             _contexto.Add(turno);
-            var guardo = _contexto.SaveChanges() > 0;
+            var guardo = await _contexto.SaveChangesAsync() > 0;
             _contexto.Entry(turno).State = EntityState.Detached;
             return guardo;
         }
 
-        public bool Modificar(Turno turno)
+        public async Task<bool> Modificar(Turno turno)
         {
             _contexto.Entry(turno).State = EntityState.Modified;
-            var guardo = _contexto.SaveChanges() > 0;
+            var guardo = await _contexto.SaveChangesAsync() > 0;
             _contexto.Entry(turno).State = EntityState.Detached;
             return guardo;
         }
 
-        public bool Guardar(Turno turno)
+        public async Task<bool> Guardar(Turno turno)
         {
-            return (!Existe(turno.TurnoId)) ? Insertar(turno) : Modificar(turno);
+            var existe = await Existe(turno.TurnoId);
+            if (!existe)
+            {
+                return await Insertar(turno);
+            }
+            else
+            {
+                return await Modificar(turno);
+            }
         }
-        public bool Eliminar(Turno turno)
+        public async Task<bool> Eliminar(Turno turno)
         {
             _contexto.Entry(turno).State = EntityState.Deleted;
-            var guardo = _contexto.SaveChanges() > 0;
+            var guardo = await _contexto.SaveChangesAsync() > 0;
             _contexto.Entry(turno).State = EntityState.Detached;
             return guardo;
         }

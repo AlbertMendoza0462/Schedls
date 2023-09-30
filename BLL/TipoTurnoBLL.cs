@@ -13,51 +13,59 @@ namespace Schedls.BLL
             _contexto = contexto;
         }
 
-        public bool Existe(int tipoTurnoId)
+        public async Task<bool> Existe(int tipoTurnoId)
         {
-            return _contexto.TiposTurnos
-                .Any(tipoTurno => tipoTurno.TipoTurnoId == tipoTurnoId);
-        }
-
-        public TipoTurno? Buscar(int tipoTurnoId)
-        {
-            return _contexto.TiposTurnos
-                .Where(tipoTurno => tipoTurno.TipoTurnoId == tipoTurnoId)
+            return await _contexto.TiposTurnos
                 .AsNoTracking()
-                .SingleOrDefault();
+                .AnyAsync(tipoTurno => tipoTurno.TipoTurnoId == tipoTurnoId);
         }
 
-        public List<TipoTurno> Listar()
+        public async Task<TipoTurno?> Buscar(int tipoTurnoId)
         {
-            return _contexto.TiposTurnos
+            return await _contexto.TiposTurnos
                 .AsNoTracking()
-                .ToList();
+                .FirstOrDefaultAsync(tipoTurno => tipoTurno.TipoTurnoId == tipoTurnoId);
         }
 
-        public bool Insertar(TipoTurno tipoTurno)
+        public async Task<List<TipoTurno>> Listar()
+        {
+            return await _contexto.TiposTurnos
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<bool> Insertar(TipoTurno tipoTurno)
         {
             _contexto.Add(tipoTurno);
-            var guardo = _contexto.SaveChanges() > 0;
+            var guardo = await _contexto.SaveChangesAsync() > 0;
             _contexto.Entry(tipoTurno).State = EntityState.Detached;
             return guardo;
         }
 
-        public bool Modificar(TipoTurno tipoTurno)
+        public async Task<bool> Modificar(TipoTurno tipoTurno)
         {
             _contexto.Entry(tipoTurno).State = EntityState.Modified;
-            var guardo = _contexto.SaveChanges() > 0;
+            var guardo = await _contexto.SaveChangesAsync() > 0;
             _contexto.Entry(tipoTurno).State = EntityState.Detached;
             return guardo;
         }
 
-        public bool Guardar(TipoTurno tipoTurno)
+        public async Task<bool> Guardar(TipoTurno tipoTurno)
         {
-            return (!Existe(tipoTurno.TipoTurnoId)) ? Insertar(tipoTurno) : Modificar(tipoTurno);
+            var existe = await Existe(tipoTurno.TipoTurnoId);
+            if (!existe)
+            {
+                return await Insertar(tipoTurno);
+            }
+            else
+            {
+                return await Modificar(tipoTurno);
+            }
         }
-        public bool Eliminar(TipoTurno tipoTurno)
+        public async Task<bool> Eliminar(TipoTurno tipoTurno)
         {
             _contexto.Entry(tipoTurno).State = EntityState.Deleted;
-            var guardo = _contexto.SaveChanges() > 0;
+            var guardo = await _contexto.SaveChangesAsync() > 0;
             _contexto.Entry(tipoTurno).State = EntityState.Detached;
             return guardo;
         }

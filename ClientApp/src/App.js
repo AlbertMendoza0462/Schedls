@@ -1,22 +1,33 @@
-import React, { Component } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import AppRoutes from './AppRoutes';
-import { Layout } from './components/Layout';
+﻿import React, { createContext, useContext, useEffect, useState } from 'react';
 import './custom.css';
+import { AlertContextProvider, LoadContextProvider, UserContextProvider } from './Contexts';
+import { SuccessAlert } from './components/Alertas';
+import AppContent from './AppContent';
 
-export default class App extends Component {
-  static displayName = App.name;
+const App = () => {
+    const [usuarioEmpleado, setUsuarioEmpleado] = useState({})
+    const [isLoading, setIsLoading] = useState(true)
+    const [isSesionValida, setIsSesionValida] = useState(false)
+    const [alertas, setAlertas] = useState([])
 
-  render() {
     return (
-      <Layout>
-        <Routes>
-          {AppRoutes.map((route, index) => {
-            const { element, ...rest } = route;
-            return <Route key={index} {...rest} element={element} />;
-          })}
-        </Routes>
-      </Layout>
-    );
-  }
+        <AlertContextProvider
+            alertas={alertas}
+            setAlertas={setAlertas}
+        >
+            <LoadContextProvider
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+            >
+                <UserContextProvider
+                    isSesionValida={isSesionValida}
+                    usuarioEmpleado={usuarioEmpleado}
+                    setUsuarioEmpleado={setUsuarioEmpleado}
+                >
+                    <AppContent setIsSesionValida={setIsSesionValida} />
+                </UserContextProvider>
+            </LoadContextProvider>
+        </AlertContextProvider>
+    )
 }
+export default App
