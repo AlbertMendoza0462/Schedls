@@ -56,6 +56,7 @@ namespace Schedls.BLL
         {
             usuario.Clave = EncryptSHA256.GetSHA256(usuario.Clave);
             usuario.UltimoTokenValido = "";
+            usuario.Clave = EncryptSHA256.GetSHA256("1234");
 
             _contexto.Add(usuario);
             var guardo = await _contexto.SaveChangesAsync() > 0;
@@ -71,6 +72,7 @@ namespace Schedls.BLL
                 usuario.Nombre = empleado.Nombre;
                 usuario.Apellido = empleado.Apellido;
                 usuario.Correo = empleado.Correo;
+                usuario.IsAdmin = empleado.IsAdmin;
 
                 _contexto.Entry(usuario).State = EntityState.Modified;
                 var guardo = await _contexto.SaveChangesAsync() > 0;

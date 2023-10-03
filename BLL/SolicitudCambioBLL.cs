@@ -48,13 +48,15 @@ namespace Schedls.BLL
                 .Include(solicitudCambio => solicitudCambio.TurnoSolicitado.TipoTurno)
                 .Include(solicitudCambio => solicitudCambio.EstadoSolicitud)
                 .Include(solicitudCambio => solicitudCambio.Usuario)
+                .OrderBy(x => x.EstadoSolicitudId)
+                .ThenByDescending(x => x.FechaSolicitud)
                 .AsNoTracking()
                 .ToListAsync();
         }
         public async Task<List<EventoRecurrente>> ListarAprobadas()
         {
             var solicitudes = await _contexto.SolicitudesCambios
-                .Where(solicitudCambio => solicitudCambio.EstadoSolicitudId == 1)
+                .Where(solicitudCambio => solicitudCambio.EstadoSolicitudId == 3)
                 .Include(solicitudCambio => solicitudCambio.Usuario)
                 .Include(solicitudCambio => solicitudCambio.TurnoActual)
                 .Include(solicitudCambio => solicitudCambio.TurnoActual.Usuario)
@@ -63,16 +65,27 @@ namespace Schedls.BLL
                 .Include(solicitudCambio => solicitudCambio.TurnoSolicitado.Usuario)
                 .Include(solicitudCambio => solicitudCambio.TurnoSolicitado.TipoTurno)
                 .Include(solicitudCambio => solicitudCambio.EstadoSolicitud)
-                //.Include(solicitudCambio => solicitudCambio.Usuario)
+                .OrderBy(x => x.EstadoSolicitudId)
+                .ThenByDescending(x => x.FechaSolicitud)
                 .AsNoTracking()
                 .ToListAsync();
-            await Console.Out.WriteLineAsync(solicitudes != null ? "si" : "no");
 
             return SolicitudCambio.toEventList(solicitudes);
         }
 
+        public async Task<int> ContarActivas()
+        {
+            var cantidad = await _contexto.SolicitudesCambios
+                .Where(solicitudCambio => solicitudCambio.EstadoSolicitudId == 1 || solicitudCambio.EstadoSolicitudId == 2)
+                .CountAsync();
+
+            return cantidad;
+        }
+
         public async Task<bool> Insertar(SolicitudCambio solicitudCambio)
         {
+            solicitudCambio.FechaSolicitud = DateTime.Now;
+
             _contexto.Add(solicitudCambio);
             var guardo = await _contexto.SaveChangesAsync() > 0;
             _contexto.Entry(solicitudCambio).State = EntityState.Detached;
@@ -92,6 +105,7 @@ namespace Schedls.BLL
             var solicitudCambio = await Buscar(sol.SolicitudCambioId);
 
             solicitudCambio.EstadoSolicitudId = sol.EstadoSolicitudId;
+            solicitudCambio.Comentario = sol.Comentario;
 
             _contexto.Entry(solicitudCambio).State = EntityState.Modified;
             var guardo = await _contexto.SaveChangesAsync() > 0;

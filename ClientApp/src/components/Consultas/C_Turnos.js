@@ -1,12 +1,14 @@
 ﻿import React, { useContext, useEffect, useState } from 'react';
 import { ApiGet } from '../../Api';
 import LoadingPage from '../LoadingPage';
-import { AlertContext } from '../../Contexts';
+import { AlertContext, UserContext } from '../../Contexts';
 import { AlertMessage, ErrorAlert, SuccessAlert } from '../Alertas';
 import Turno from '../Registros/R_Turno';
+import dayjs from 'dayjs';
 
 const Turnos = () => {
     const alertContext = useContext(AlertContext)
+    const userContext = useContext(UserContext)
     const [data, setData] = useState([])
     const [loading, setLoading] = useState([])
     const [isOpen, setIsOpen] = useState(false)
@@ -46,7 +48,7 @@ const Turnos = () => {
         return (
             <div>
                 <Turno isOpen={isOpen} setIsOpen={setIsOpen} entidad={entidad} solicitarData={solicitarData} />
-                <table className='table table-striped table-hover ' aria-labelledby="tabelLabel">
+                <table className='table table-striped table-hover table-sm' aria-labelledby="tabelLabel">
                     <thead>
                         <tr>
                             <th>Id</th>
@@ -61,14 +63,15 @@ const Turnos = () => {
                     <tbody className="h-100">
                         {data.map(d =>
                             <tr key={d.turnoId} onClick={() => {
-                                setEntidad(d)
-                                setIsOpen(true)
-                                return
+                                if (userContext.usuarioEmpleado.IsAdmin) {
+                                    setEntidad(d)
+                                    setIsOpen(true)
+                                }
                             }}>
                                 <td>{d.turnoId}</td>
                                 <td>{d.usuario.nombre + " " + d.usuario.apellido}</td>
                                 <td>{d.tipoTurno.descripcion}</td>
-                                <td>{d.fechaInicio}</td>
+                                <td>{dayjs(d.fechaInicio).format('DD/MM/YYYY hh:mm a')}</td>
                                 <td>{d.cantHorasEnDiaDeSemana}</td>
                                 <td>{d.cantHorasEnFinDeSemana}</td>
                                 <td>{d.intervaloDeDias}</td>
@@ -93,12 +96,14 @@ const Turnos = () => {
                     <h1 id="tabelLabel" >Mantenimiento de Turnos</h1>
                     <p>This component demonstrates fetching data from the server.</p>
                 </div>
-                <div className="form-group">
-                    <input type="button" className="btn btn-primary" onClick={() => {
-                        setEntidad(null)
-                        setIsOpen(true)
-                    }} value="Nuevo" />
-                </div>
+                {(userContext.usuarioEmpleado.IsAdmin) ?
+                    <div className="form-group">
+                        <input type="button" className="btn btn-primary" onClick={() => {
+                            setEntidad(null)
+                            setIsOpen(true)
+                        }} value="Nuevo" />
+                    </div>
+                    : <></>}
             </div>
             {contents}
         </div>

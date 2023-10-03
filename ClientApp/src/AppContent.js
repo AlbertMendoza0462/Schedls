@@ -6,7 +6,7 @@ import Logout from './components/Registros/Logout';
 import SidebarComponent from './components/SidebarComponent';
 import ValidarSesion from './ValidarSesion';
 import LoadingPage from './components/LoadingPage';
-import { SuccessAlert } from './components/Alertas';
+import { AlertMessage, ErrorAlert, SuccessAlert } from './components/Alertas';
 import { Layout } from './components/Layout';
 import Usuario from "./components/Registros/R_Usuario";
 import TiposTurnos from "./components/Consultas/C_TiposTurnos";
@@ -18,14 +18,30 @@ import Turno from "./components/Registros/R_Turno";
 import CambioClave from "./components/Registros/R_CambioClave";
 import Usuarios from "./components/Consultas/C_Usuarios";
 import { Home } from "./components/Home";
-import { AlertContext, LoadContext, UserContext } from './Contexts';
+import { AlertContext, CantSolicitudesActivasContext, LoadContext, UserContext } from './Contexts';
 import Calendario from './components/Consultas/Calendario';
 import SolicitudesCambios from './components/Consultas/C_SolicitudesCambios';
+import { ApiGet } from './Api';
 
 const AppContent = ({ setIsSesionValida }) => {
     const alertContext = useContext(AlertContext)
     const loadContext = useContext(LoadContext)
     const userContext = useContext(UserContext)
+    const cantSolicitudesActivasContext = useContext(CantSolicitudesActivasContext)
+
+    useEffect(() => {
+        ApiGet("/api/SolicitudCambio/ContarActivas")
+            .then(d => {
+                cantSolicitudesActivasContext.setCantidad(d.response)
+            })
+            .catch(d => {
+                alertContext.setAlertas((al) => [...al, {
+                    Alerta: ErrorAlert,
+                    mensaje: AlertMessage.noCargado
+                }])
+                console.log(d)
+            })
+    }, [])
 
     return (
         <div id="app">
@@ -48,11 +64,14 @@ const AppContent = ({ setIsSesionValida }) => {
                                 <Route path="/logout" element={<Logout />} />
                                 <Route path="/calendario" element={<Layout><Calendario /></Layout >} />
                                 <Route path="/usuario" element={<Layout><Usuarios /></Layout >} />
-                                <Route path="/usuario/cambioClave" element={<Layout><CambioClave /></Layout >} />
-                                <Route path="/tipoTurno" element={<Layout><TiposTurnos /></Layout >} />
-                                <Route path="/estadoSolicitud" element={<Layout><EstadosSolicitudes /></Layout >} />
-                                <Route path="/turno" element={<Layout><Turnos /></Layout >} />
                                 <Route path="/solicitudCambio" element={<Layout><SolicitudesCambios /></Layout >} />
+                                <Route path="/usuario/cambioClave" element={<Layout><CambioClave /></Layout >} />
+                                {(userContext.usuarioEmpleado.IsAdmin) ? <>
+                                    <Route path="/tipoTurno" element={<Layout><TiposTurnos /></Layout >} />
+                                    <Route path="/estadoSolicitud" element={<Layout><EstadosSolicitudes /></Layout >} />
+                                    <Route path="/turno" element={<Layout><Turnos /></Layout >} />
+                                </>
+                                    : <></>}
                             </Routes>
                         </main>
                     </div>

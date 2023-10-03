@@ -11,6 +11,7 @@ namespace Schedls.Models
         public string Nombre { get; set; }
         public string Apellido { get; set; }
         public string Correo { get; set; }
+        public bool IsAdmin { get; set; }
 
         public static explicit operator Empleado(Usuario usuario)
         {
@@ -20,6 +21,7 @@ namespace Schedls.Models
                 Nombre = usuario.Nombre,
                 Apellido = usuario.Apellido,
                 Correo = usuario.Correo,
+                IsAdmin = usuario.IsAdmin
             };
         }
     }

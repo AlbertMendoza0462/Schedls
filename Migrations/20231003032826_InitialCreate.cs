@@ -50,6 +50,7 @@ namespace Schedls.Migrations
                     Apellido = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Correo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Clave = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsAdmin = table.Column<bool>(type: "bit", nullable: false),
                     UltimoTokenValido = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -135,9 +136,9 @@ namespace Schedls.Migrations
                 columns: new[] { "EstadoSolicitudId", "Descripcion" },
                 values: new object[,]
                 {
-                    { 1, "Aprobada" },
-                    { 2, "Pendiente" },
-                    { 3, "En Proceso" },
+                    { 1, "Pendiente" },
+                    { 2, "En Proceso" },
+                    { 3, "Aprobada" },
                     { 4, "Cancelada por el Empleado" },
                     { 5, "Rechazada" },
                     { 6, "Solicitud Inválida" }
@@ -155,15 +156,15 @@ namespace Schedls.Migrations
 
             migrationBuilder.InsertData(
                 table: "Usuarios",
-                columns: new[] { "UsuarioId", "Apellido", "Clave", "Correo", "Nombre", "UltimoTokenValido" },
+                columns: new[] { "UsuarioId", "Apellido", "Clave", "Correo", "IsAdmin", "Nombre", "UltimoTokenValido" },
                 values: new object[,]
                 {
-                    { 1, "Mendoza", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "albert@gmail.com", "Albert", "" },
-                    { 2, "Liriano", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "deninson@gmail.com", "Deninson", "" },
-                    { 3, "Mendez", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "domingo@gmail.com", "Domingo", "" },
-                    { 4, "Goris", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "frank@gmail.com", "Frank", "" },
-                    { 5, "Bonifacio", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "danilo@gmail.com", "Danilo", "" },
-                    { 6, "Castillo", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "eliot@gmail.com", "Eliot", "" }
+                    { 1, "Mendoza", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "albert@gmail.com", false, "Albert", "" },
+                    { 2, "Liriano", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "deninson@gmail.com", false, "Deninson", "" },
+                    { 3, "Mendez", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "domingo@gmail.com", false, "Domingo", "" },
+                    { 4, "Goris", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "frank@gmail.com", false, "Frank", "" },
+                    { 5, "Bonifacio", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "danilo@gmail.com", false, "Danilo", "" },
+                    { 6, "Castillo", "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", "eliot@gmail.com", true, "Eliot", "" }
                 });
 
             migrationBuilder.InsertData(

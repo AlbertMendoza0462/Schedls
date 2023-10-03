@@ -12,6 +12,8 @@ namespace Schedls.Models
         public string CantHorasEnFinDeSemana { get; set; }
         public Rrule rrule { get; set; }
         public List<DateTime> Exdate { get; set; } = new List<DateTime>();
+        public string? BackgroundColor { get; set; }
+        public string Duration { get; set; } = "01:00:00";
 
         public class Rrule
         {

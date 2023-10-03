@@ -16,6 +16,8 @@ namespace Schedls.Models
         public string Correo { get; set; }
         [Required]
         public string Clave { get; set; }
+        [Required]
+        public bool IsAdmin { get; set; }
         public string? UltimoTokenValido { get; set; }
     }
 }

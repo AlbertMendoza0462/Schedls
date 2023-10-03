@@ -169,27 +169,15 @@ const Turno = (props) => {
     }, [props.entidad])
 
     useEffect(() => {
-        let anio = fechaInicioComponent.$y
-        let mes = (fechaInicioComponent.$M < 10) ? "0" + (fechaInicioComponent.$M + 1) : fechaInicioComponent.$M + 1
-        let dia = (fechaInicioComponent.$D < 10) ? "0" + fechaInicioComponent.$D.toString() : fechaInicioComponent.$D.toString()
-        let hora = (fechaInicioComponent.$H < 10) ? "0" + fechaInicioComponent.$H.toString() : fechaInicioComponent.$H.toString()
-        let minuto = (fechaInicioComponent.$m < 10) ? "0" + fechaInicioComponent.$m.toString() : fechaInicioComponent.$m.toString()
-        let segundo = (fechaInicioComponent.$s < 10) ? "0" + fechaInicioComponent.$s.toString() : fechaInicioComponent.$s.toString()
-        setFechaInicio(anio + "-" + mes + "-" + dia + "T" + hora + ":" + minuto + ":" + segundo)
+        setFechaInicio(fechaInicioComponent.format("YYYY-MM-DDTHH:mm:ss"))
     }, [fechaInicioComponent])
 
     useEffect(() => {
-        let hora = (cantHorasEnDiaDeSemanaComponent.$H < 10) ? "0" + cantHorasEnDiaDeSemanaComponent.$H.toString() : cantHorasEnDiaDeSemanaComponent.$H.toString()
-        let minuto = (cantHorasEnDiaDeSemanaComponent.$m < 10) ? "0" + cantHorasEnDiaDeSemanaComponent.$m.toString() : cantHorasEnDiaDeSemanaComponent.$m.toString()
-        let segundo = (cantHorasEnDiaDeSemanaComponent.$s < 10) ? "0" + cantHorasEnDiaDeSemanaComponent.$s.toString() : cantHorasEnDiaDeSemanaComponent.$s.toString()
-        setCantHorasEnDiaDeSemana(hora + ":" + minuto + ":" + segundo)
+        setCantHorasEnDiaDeSemana(cantHorasEnDiaDeSemanaComponent.format("HH:mm:ss"))
     }, [cantHorasEnDiaDeSemanaComponent])
 
     useEffect(() => {
-        let hora = (cantHorasEnFinDeSemanaComponent.$H < 10) ? "0" + cantHorasEnFinDeSemanaComponent.$H.toString() : cantHorasEnFinDeSemanaComponent.$H.toString()
-        let minuto = (cantHorasEnFinDeSemanaComponent.$m < 10) ? "0" + cantHorasEnFinDeSemanaComponent.$m.toString() : cantHorasEnFinDeSemanaComponent.$m.toString()
-        let segundo = (cantHorasEnFinDeSemanaComponent.$s < 10) ? "0" + cantHorasEnFinDeSemanaComponent.$s.toString() : cantHorasEnFinDeSemanaComponent.$s.toString()
-        setCantHorasEnFinDeSemana(hora + ":" + minuto + ":" + segundo)
+        setCantHorasEnFinDeSemana(cantHorasEnFinDeSemanaComponent.format("HH:mm:ss"))
     }, [cantHorasEnFinDeSemanaComponent])
 
     const solicitarData = () => {

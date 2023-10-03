@@ -31,3 +31,13 @@ export const LoadContextProvider = ({ children, isLoading, setIsLoading }) => {
         </LoadContext.Provider>
     )
 }
+
+export const CantSolicitudesActivasContext = createContext()
+
+export const CantSolicitudesActivasContextProvider = ({ children, cantidad, setCantidad }) => {
+    return (
+        <CantSolicitudesActivasContext.Provider value={{ cantidad, setCantidad }}>
+            {children}
+        </CantSolicitudesActivasContext.Provider>
+    )
+}

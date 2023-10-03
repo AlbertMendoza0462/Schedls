@@ -12,7 +12,7 @@ using Schedls.DAL;
 namespace Schedls.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20230927180323_InitialCreate")]
+    [Migration("20231003032826_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -45,17 +45,17 @@ namespace Schedls.Migrations
                         new
                         {
                             EstadoSolicitudId = 1,
-                            Descripcion = "Aprobada"
-                        },
-                        new
-                        {
-                            EstadoSolicitudId = 2,
                             Descripcion = "Pendiente"
                         },
                         new
                         {
-                            EstadoSolicitudId = 3,
+                            EstadoSolicitudId = 2,
                             Descripcion = "En Proceso"
+                        },
+                        new
+                        {
+                            EstadoSolicitudId = 3,
+                            Descripcion = "Aprobada"
                         },
                         new
                         {
@@ -388,6 +388,9 @@ namespace Schedls.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -406,6 +409,7 @@ namespace Schedls.Migrations
                             Apellido = "Mendoza",
                             Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
                             Correo = "albert@gmail.com",
+                            IsAdmin = false,
                             Nombre = "Albert",
                             UltimoTokenValido = ""
                         },
@@ -415,6 +419,7 @@ namespace Schedls.Migrations
                             Apellido = "Liriano",
                             Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
                             Correo = "deninson@gmail.com",
+                            IsAdmin = false,
                             Nombre = "Deninson",
                             UltimoTokenValido = ""
                         },
@@ -424,6 +429,7 @@ namespace Schedls.Migrations
                             Apellido = "Mendez",
                             Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
                             Correo = "domingo@gmail.com",
+                            IsAdmin = false,
                             Nombre = "Domingo",
                             UltimoTokenValido = ""
                         },
@@ -433,6 +439,7 @@ namespace Schedls.Migrations
                             Apellido = "Goris",
                             Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
                             Correo = "frank@gmail.com",
+                            IsAdmin = false,
                             Nombre = "Frank",
                             UltimoTokenValido = ""
                         },
@@ -442,6 +449,7 @@ namespace Schedls.Migrations
                             Apellido = "Bonifacio",
                             Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
                             Correo = "danilo@gmail.com",
+                            IsAdmin = false,
                             Nombre = "Danilo",
                             UltimoTokenValido = ""
                         },
@@ -451,6 +459,7 @@ namespace Schedls.Migrations
                             Apellido = "Castillo",
                             Clave = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
                             Correo = "eliot@gmail.com",
+                            IsAdmin = true,
                             Nombre = "Eliot",
                             UltimoTokenValido = ""
                         });

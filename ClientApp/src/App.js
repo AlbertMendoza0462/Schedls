@@ -1,6 +1,6 @@
 ﻿import React, { createContext, useContext, useEffect, useState } from 'react';
 import './custom.css';
-import { AlertContextProvider, LoadContextProvider, UserContextProvider } from './Contexts';
+import { AlertContextProvider, CantSolicitudesActivasContextProvider, LoadContextProvider, UserContextProvider } from './Contexts';
 import { SuccessAlert } from './components/Alertas';
 import AppContent from './AppContent';
 
@@ -9,6 +9,7 @@ const App = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [isSesionValida, setIsSesionValida] = useState(false)
     const [alertas, setAlertas] = useState([])
+    const [cantSolicitudesActivas, setCantSolicitudesActivas] = useState(0)
 
     return (
         <AlertContextProvider
@@ -24,7 +25,12 @@ const App = () => {
                     usuarioEmpleado={usuarioEmpleado}
                     setUsuarioEmpleado={setUsuarioEmpleado}
                 >
-                    <AppContent setIsSesionValida={setIsSesionValida} />
+                    <CantSolicitudesActivasContextProvider
+                        cantidad={cantSolicitudesActivas}
+                        setCantidad={setCantSolicitudesActivas}
+                    >
+                        <AppContent setIsSesionValida={setIsSesionValida} />
+                    </CantSolicitudesActivasContextProvider>
                 </UserContextProvider>
             </LoadContextProvider>
         </AlertContextProvider>

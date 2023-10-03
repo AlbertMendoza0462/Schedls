@@ -73,6 +73,20 @@ namespace Schedls.Controllers
             }
         }
 
+        [HttpGet("ContarActivas")]
+        public async Task<IActionResult> ContarActivas()
+        {
+            try
+            {
+                var cantidad = await _bll.ContarActivas();
+                return Ok(cantidad);
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Source + ": " + e.Message);
+            }
+        }
+
         // POST api/<SolicitudCambioController>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] SolicitudCambio solicitudCambio)

@@ -12,7 +12,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import { esES } from '@mui/x-date-pickers/locales';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { DeleteConfirm, SaveConfirm } from '../Confirmaciones';
+import { ComentarioDialog, DeleteConfirm, SaveConfirm } from '../Confirmaciones';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 
@@ -33,7 +33,7 @@ const SolicitudCambio = (props) => {
     const [fechaTurnoSolicitado, setFechaTurnoSolicitado] = useState("")
     const [fechaSolicitud, setFechaSolicitud] = useState("2001-01-01T01:01:01")
     const [motivo, setMotivo] = useState("")
-    const [estadoSolicitudId, setEstadoSolicitudId] = useState(2)
+    const [estadoSolicitudId, setEstadoSolicitudId] = useState(1)
     const [comentario, setComentario] = useState("")
 
     const [turnos, setTurnos] = useState([])
@@ -127,9 +127,8 @@ const SolicitudCambio = (props) => {
             EstadoSolicitudId: estado,
             Comentario: comentario
         }
-        console.log(solicitudCambio)
 
-        SaveConfirm(() => {
+        const cambiar = () => SaveConfirm(() => {
             return new Promise((resolve, reject) => {
                 ApiPost("/api/SolicitudCambio/CambiarEstado", solicitudCambio)
                     .then(d => {
@@ -138,6 +137,7 @@ const SolicitudCambio = (props) => {
                             mensaje: AlertMessage.guardado
                         }])
                         props.setIsOpen(false)
+                        setEstadoSolicitudId(estado)
                         props.solicitarData()
                         setLoading(false)
                         resolve()
@@ -153,6 +153,13 @@ const SolicitudCambio = (props) => {
                     })
             })
         })
+
+        if (estado == 2 || estado == 4 || estado == 5 || estado == 6) {
+            ComentarioDialog(solicitudCambio, cambiar)
+        } else {
+            solicitudCambio.Comentario = ""
+            cambiar()
+        }
     }
 
     useEffect(() => {
@@ -180,29 +187,17 @@ const SolicitudCambio = (props) => {
             setFechaTurnoSolicitadoComponent(dayjs(new Date().toLocaleString()))
             setFechaSolicitud("2001-01-01T01:01:01")
             setMotivo("")
-            setEstadoSolicitudId(2)
+            setEstadoSolicitudId(1)
             setComentario("")
         }
     }, [props.entidad])
 
     useEffect(() => {
-        let anio = fechaTurnoActualComponent.$y
-        let mes = (fechaTurnoActualComponent.$M < 10) ? "0" + (fechaTurnoActualComponent.$M + 1) : fechaTurnoActualComponent.$M + 1
-        let dia = (fechaTurnoActualComponent.$D < 10) ? "0" + fechaTurnoActualComponent.$D.toString() : fechaTurnoActualComponent.$D.toString()
-        let hora = (fechaTurnoActualComponent.$H < 10) ? "0" + fechaTurnoActualComponent.$H.toString() : fechaTurnoActualComponent.$H.toString()
-        let minuto = (fechaTurnoActualComponent.$m < 10) ? "0" + fechaTurnoActualComponent.$m.toString() : fechaTurnoActualComponent.$m.toString()
-        let segundo = (fechaTurnoActualComponent.$s < 10) ? "0" + fechaTurnoActualComponent.$s.toString() : fechaTurnoActualComponent.$s.toString()
-        setFechaTurnoActual(anio + "-" + mes + "-" + dia + "T" + hora + ":" + minuto + ":" + segundo)
+        setFechaTurnoActual(fechaTurnoActualComponent.format("YYYY-MM-DDTHH:mm:ss"))
     }, [fechaTurnoActualComponent])
 
     useEffect(() => {
-        let anio = fechaTurnoSolicitadoComponent.$y
-        let mes = (fechaTurnoSolicitadoComponent.$M < 10) ? "0" + (fechaTurnoSolicitadoComponent.$M + 1) : fechaTurnoSolicitadoComponent.$M + 1
-        let dia = (fechaTurnoSolicitadoComponent.$D < 10) ? "0" + fechaTurnoSolicitadoComponent.$D.toString() : fechaTurnoSolicitadoComponent.$D.toString()
-        let hora = (fechaTurnoSolicitadoComponent.$H < 10) ? "0" + fechaTurnoSolicitadoComponent.$H.toString() : fechaTurnoSolicitadoComponent.$H.toString()
-        let minuto = (fechaTurnoSolicitadoComponent.$m < 10) ? "0" + fechaTurnoSolicitadoComponent.$m.toString() : fechaTurnoSolicitadoComponent.$m.toString()
-        let segundo = (fechaTurnoSolicitadoComponent.$s < 10) ? "0" + fechaTurnoSolicitadoComponent.$s.toString() : fechaTurnoSolicitadoComponent.$s.toString()
-        setFechaTurnoSolicitado(anio + "-" + mes + "-" + dia + "T" + hora + ":" + minuto + ":" + segundo)
+        setFechaTurnoSolicitado(fechaTurnoSolicitadoComponent.format("YYYY-MM-DDTHH:mm:ss"))
     }, [fechaTurnoSolicitadoComponent])
 
 
@@ -236,6 +231,47 @@ const SolicitudCambio = (props) => {
         solicitarData();
     }, [])
 
+    const Botones = () => {
+        const BtnAprobar = () => (userContext.usuarioEmpleado.IsAdmin) ? <Button color="success" onClick={() => { handleCambiarEstado(3) }}>Aprobar</Button> : <></>
+        const BtnIniciarProceso = () => (userContext.usuarioEmpleado.IsAdmin) ? <Button color="info" onClick={() => { handleCambiarEstado(2) }}>Iniciar Proceso</Button> : <></>
+        const BtnInvalidar = () => (userContext.usuarioEmpleado.IsAdmin) ? <Button color="dark" onClick={() => { handleCambiarEstado(6) }}>Invalidar</Button> : <></>
+        const BtnRechazar = () => (userContext.usuarioEmpleado.IsAdmin) ? <Button color="danger" onClick={() => { handleCambiarEstado(5) }}>Rechazar</Button> : <></>
+        const BtnCancelarSolicitud = () => (usuarioId == userContext.usuarioEmpleado.EmpleadoId) ? <Button color="warning" onClick={() => { handleCambiarEstado(4) }}>Cancelar Solicitud</Button> : <></>
+        const BtnReactivar = () => <Button color="warning" onClick={() => { handleCambiarEstado(1) }}>Reactivar</Button>
+        const BtnEliminar = () => (userContext.usuarioEmpleado.IsAdmin) ? <Button color="danger" onClick={handleDelete}>Eliminar</Button> : <></>
+
+        const botones = []
+        if (estadoSolicitudId == 1) {
+            botones.push(BtnAprobar)
+            botones.push(BtnIniciarProceso)
+            botones.push(BtnInvalidar)
+            botones.push(BtnRechazar)
+            botones.push(BtnCancelarSolicitud)
+        } else if (estadoSolicitudId == 2) {
+            botones.push(BtnAprobar)
+            botones.push(BtnInvalidar)
+            botones.push(BtnRechazar)
+            botones.push(BtnCancelarSolicitud)
+        } else if (estadoSolicitudId == 3) {
+            botones.push(BtnInvalidar)
+            botones.push(BtnRechazar)
+            botones.push(BtnCancelarSolicitud)
+        } else if (estadoSolicitudId == 4) {
+            if (usuarioId == userContext.usuarioEmpleado.EmpleadoId)
+                botones.push(BtnReactivar)
+        } else if (estadoSolicitudId == 5 || estadoSolicitudId == 6) {
+            botones.push(BtnReactivar)
+        }
+
+        return (
+            <>
+                {botones.map((Btn) => <Btn />)}
+                <BtnEliminar />
+            </>
+        )
+    }
+
+
     return (
         <div>
             <Modal isOpen={props.isOpen} fullscreen={true} toggle={() => props.setIsOpen(false)}>
@@ -245,35 +281,23 @@ const SolicitudCambio = (props) => {
                     </ModalHeader>
                     <ModalBody>
                         <ThemeProvider theme={theme}>
-                            <div className="row d-flex justify-content-center">
-                                <div className="col-md-4">
-                                    <div className="text-danger"></div>
-                                    <div className="form-group">
-                                        <label className="control-label">Turno Actual</label>
-                                        <select value={turnoActualId} className="form-select" onChange={(e) => setTurnoActualId(e.target.value)}>
-                                            <option value="0" disabled></option>
-                                            {turnos.map((turno, key) => {
-                                                return (
-                                                    <option key={key} selected={(turno.turnoId == turnoActualId)} value={turno.turnoId}>{turno.tipoTurno.descripcion + " - " + turno.usuario.nombre + " " + turno.usuario.apellido}</option>
-                                                )
-                                            })}
-                                        </select>
-                                        <span className="text-danger"></span>
-                                    </div>
-                                    <div className="form-group">
-                                        <label className="control-label">Turno Solicitado</label>
-                                        <select value={turnoSolicitadoId} className="form-select" onChange={(e) => setTurnoSolicitadoId(e.target.value)}>
-                                            <option value="0" disabled></option>
-                                            {turnos.map((turno, key) => {
-                                                return (
-                                                    <option key={key} selected={(turno.turnoId == turnoSolicitadoId)} value={turno.turnoId}>{turno.tipoTurno.descripcion + " - " + turno.usuario.nombre + " " + turno.usuario.apellido}</option>
-                                                )
-                                            })}
-                                        </select>
-                                        <span className="text-danger"></span>
-                                    </div>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <div className="row d-flex justify-content-center">
+                                    <div className="col-md-4">
+                                        <div className="text-danger"></div>
+                                        <div className="form-group">
+                                            <label className="control-label">Turno Actual</label>
+                                            <select value={turnoActualId} className="form-select" onChange={(e) => setTurnoActualId(e.target.value)}>
+                                                <option value="0" disabled></option>
+                                                {turnos.map((turno, key) => {
+                                                    return (
+                                                        <option key={key} selected={(turno.turnoId == turnoActualId)} value={turno.turnoId}>{turno.tipoTurno.abreviatura + " - " + turno.usuario.nombre + " " + turno.usuario.apellido}</option>
+                                                    )
+                                                })}
+                                            </select>
+                                            <span className="text-danger"></span>
+                                        </div>
 
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
                                         <div className="form-group">
                                             <label className="control-label">Fecha del Turno Actual</label>
                                             <DemoItem>
@@ -282,25 +306,42 @@ const SolicitudCambio = (props) => {
                                             <span className="text-danger"></span>
                                         </div>
                                         <div className="form-group">
+                                            <label className="control-label">Turno Solicitado</label>
+                                            <select value={turnoSolicitadoId} className="form-select" onChange={(e) => setTurnoSolicitadoId(e.target.value)}>
+                                                <option value="0" disabled></option>
+                                                {turnos.map((turno, key) => {
+                                                    return (
+                                                        <option key={key} selected={(turno.turnoId == turnoSolicitadoId)} value={turno.turnoId}>{turno.tipoTurno.abreviatura + " - " + turno.usuario.nombre + " " + turno.usuario.apellido}</option>
+                                                    )
+                                                })}
+                                            </select>
+                                            <span className="text-danger"></span>
+                                        </div>
+
+
+                                        <div className="form-group">
                                             <label className="control-label">Fecha del Turno Solicitado</label>
                                             <DemoItem>
                                                 <MobileDatePicker className="form-control" id="FechaSolicitado" name="FechaSolicitado" format="DD/MM/YYYY" value={fechaTurnoSolicitadoComponent} onChange={(e) => setFechaTurnoSolicitadoComponent(e)} />
                                             </DemoItem>
                                             <span className="text-danger"></span>
                                         </div>
-                                    </LocalizationProvider>
-                                    <div className="form-group">
-                                        <label className="control-label">Motivo</label>
-                                        <input className="form-control" id="Motivo" name="Motivo" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
-                                        <span className="text-danger"></span>
-                                    </div>
-                                    <div className="form-group">
-                                        <label className="control-label">Comentario</label>
-                                        <input className="form-control" id="Comentario" name="Comentario" value={comentario} onChange={(e) => setComentario(e.target.value)} />
-                                        <span className="text-danger"></span>
+                                        <div className="form-group">
+                                            <label className="control-label">Motivo</label>
+                                            <input className="form-control" id="Motivo" name="Motivo" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+                                            <span className="text-danger"></span>
+                                        </div>
+                                        {(comentario) ?
+                                            <div className="form-group">
+                                                <label className="control-label">Comentario</label>
+                                                <input className="form-control is-invalid" id="Comentario" name="Comentario" readOnly value={comentario} />
+                                                <span className="text-danger"></span>
+                                            </div>
+                                            : <></>
+                                        }
                                     </div>
                                 </div>
-                            </div>
+                            </LocalizationProvider>
                         </ThemeProvider>
                     </ModalBody>
                     <ModalFooter>
@@ -309,27 +350,7 @@ const SolicitudCambio = (props) => {
                         </div>
                         {(props.entidad != null) ?
                             <>
-                                <Button color="success" onClick={() => {
-                                    setEstadoSolicitudId(1)
-                                    handleCambiarEstado(1)
-                                }} >Aprobar</Button>
-                                <Button color="info" onClick={() => {
-                                    setEstadoSolicitudId(3)
-                                    handleCambiarEstado(3)
-                                }}>Iniciar Proceso</Button>
-                                <Button color="dark" onClick={() => {
-                                    setEstadoSolicitudId(6)
-                                    handleCambiarEstado(6)
-                                }}>Invalidar</Button>
-                                <Button color="danger" onClick={() => {
-                                    setEstadoSolicitudId(5)
-                                    handleCambiarEstado(5)
-                                }}>Rechazar</Button>
-                                <Button color="warning" onClick={() => {
-                                    setEstadoSolicitudId(4)
-                                    handleCambiarEstado(4)
-                                }}>Cancelar Solicitud</Button>
-                                <Button color="danger" onClick={handleDelete}>Eliminar</Button>
+                                <Botones />
                             </>
                             :
                             <></>
@@ -338,7 +359,7 @@ const SolicitudCambio = (props) => {
                     </ModalFooter>
                 </form>
             </Modal>
-        </div>
+        </div >
     )
 }
 

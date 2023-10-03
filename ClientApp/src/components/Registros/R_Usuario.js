@@ -1,19 +1,21 @@
 ﻿import React, { useContext, useEffect, useRef, useState } from 'react';
 import axios from 'axios'
 import { ApiDelete, ApiPost } from '../../Api';
-import { AlertContext } from '../../Contexts';
+import { AlertContext, UserContext } from '../../Contexts';
 import { SuccessAlert, ErrorAlert, AlertMessage } from '../Alertas';
 import { DeleteConfirm, SaveConfirm } from '../Confirmaciones';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 const Usuario = (props) => {
     const alertContext = useContext(AlertContext)
+    const userContext = useContext(UserContext)
     const [loading, setLoading] = useState([])
     const [usuarioId, setUsuarioId] = useState(0)
     const [nombre, setNombre] = useState("")
     const [apellido, setApellido] = useState("")
     const [correo, setCorreo] = useState("")
-    const [clave, setClave] = useState("")
+    const [isAdmin, setIsAdmin] = useState(false)
+    const [clave, setClave] = useState("1234")
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -23,6 +25,7 @@ const Usuario = (props) => {
             Nombre: nombre,
             Apellido: apellido,
             Correo: correo,
+            IsAdmin: isAdmin,
             Clave: clave
         }
         console.log(usuario)
@@ -89,11 +92,15 @@ const Usuario = (props) => {
             setNombre(props.entidad.nombre)
             setApellido(props.entidad.apellido)
             setCorreo(props.entidad.correo)
+            setIsAdmin(props.entidad.isAdmin)
+            setClave("1234")
         } else {
             setUsuarioId(0)
             setNombre("")
             setApellido("")
             setCorreo("")
+            setIsAdmin(false)
+            setClave("1234")
         }
     }, [props.entidad])
 
@@ -108,6 +115,13 @@ const Usuario = (props) => {
                         <div className="row d-flex justify-content-center">
                             <div className="col-md-4">
                                 <div className="text-danger"></div>
+                                {(userContext.usuarioEmpleado.IsAdmin) ?
+                                    <div className="form-check">
+                                        <label className="form-check-label" htmlFor="IsAdmin">Es Admin?</label>
+                                        <input className="form-check-input" id="IsAdmin" name="IsAdmin" type="checkbox" checked={isAdmin} onChange={(e) => { setIsAdmin(!isAdmin) }} />
+                                        <span className="text-danger"></span>
+                                    </div>
+                                    : <></>}
                                 <div className="form-group">
                                     <label className="control-label">Nombre</label>
                                     <input className="form-control" id="Nombre" name="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} />
@@ -121,11 +135,6 @@ const Usuario = (props) => {
                                 <div className="form-group">
                                     <label className="control-label">Correo</label>
                                     <input type="email" className="form-control" id="Correo" name="Correo" value={correo} onChange={(e) => setCorreo(e.target.value)} />
-                                    <span className="text-danger"></span>
-                                </div>
-                                <div className="form-group">
-                                    <label className="control-label">Clave</label>
-                                    <input className="form-control" id="Clave" name="Clave" type="password" value={clave} onChange={(e) => setClave(e.target.value)} />
                                     <span className="text-danger"></span>
                                 </div>
                             </div>

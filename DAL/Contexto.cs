@@ -21,12 +21,12 @@ namespace Schedls.DAL
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Usuario>().HasData(
-                new Usuario { UsuarioId = 1, Nombre = "Albert", Apellido = "Mendoza", Correo = "albert@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), UltimoTokenValido = "" },
-                new Usuario { UsuarioId = 2, Nombre = "Deninson", Apellido = "Liriano", Correo = "deninson@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), UltimoTokenValido = "" },
-                new Usuario { UsuarioId = 3, Nombre = "Domingo", Apellido = "Mendez", Correo = "domingo@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), UltimoTokenValido = "" },
-                new Usuario { UsuarioId = 4, Nombre = "Frank", Apellido = "Goris", Correo = "frank@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), UltimoTokenValido = "" },
-                new Usuario { UsuarioId = 5, Nombre = "Danilo", Apellido = "Bonifacio", Correo = "danilo@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), UltimoTokenValido = "" },
-                new Usuario { UsuarioId = 6, Nombre = "Eliot", Apellido = "Castillo", Correo = "eliot@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), UltimoTokenValido = "" }
+                new Usuario { UsuarioId = 1, Nombre = "Albert", Apellido = "Mendoza", Correo = "albert@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), IsAdmin = false, UltimoTokenValido = "" },
+                new Usuario { UsuarioId = 2, Nombre = "Deninson", Apellido = "Liriano", Correo = "deninson@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), IsAdmin = false, UltimoTokenValido = "" },
+                new Usuario { UsuarioId = 3, Nombre = "Domingo", Apellido = "Mendez", Correo = "domingo@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), IsAdmin = false, UltimoTokenValido = "" },
+                new Usuario { UsuarioId = 4, Nombre = "Frank", Apellido = "Goris", Correo = "frank@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), IsAdmin = false, UltimoTokenValido = "" },
+                new Usuario { UsuarioId = 5, Nombre = "Danilo", Apellido = "Bonifacio", Correo = "danilo@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), IsAdmin = false, UltimoTokenValido = "" },
+                new Usuario { UsuarioId = 6, Nombre = "Eliot", Apellido = "Castillo", Correo = "eliot@gmail.com", Clave = EncryptSHA256.GetSHA256("1234"), IsAdmin = true, UltimoTokenValido = "" }
                 );
 
             modelBuilder.Entity<Turno>().HasData(
@@ -82,17 +82,17 @@ namespace Schedls.DAL
                 new EstadoSolicitud
                 {
                     EstadoSolicitudId = 1,
-                    Descripcion = "Aprobada"
-                },
-                new EstadoSolicitud
-                {
-                    EstadoSolicitudId = 2,
                     Descripcion = "Pendiente"
                 },
                 new EstadoSolicitud
                 {
-                    EstadoSolicitudId = 3,
+                    EstadoSolicitudId = 2,
                     Descripcion = "En Proceso"
+                },
+                new EstadoSolicitud
+                {
+                    EstadoSolicitudId = 3,
+                    Descripcion = "Aprobada"
                 },
                 new EstadoSolicitud
                 {

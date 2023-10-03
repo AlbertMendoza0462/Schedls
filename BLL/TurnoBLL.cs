@@ -34,6 +34,8 @@ namespace Schedls.BLL
             return await _contexto.Turnos
                 .Include(turno => turno.TipoTurno)
                 .Include(turno => turno.Usuario)
+                .OrderBy(turno => turno.UsuarioId)
+                .ThenBy(turno => turno.TipoTurnoId)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -43,6 +45,8 @@ namespace Schedls.BLL
             var turnos = await _contexto.Turnos
                 .Include(turno => turno.TipoTurno)
                 .Include(turno => turno.Usuario)
+                .OrderBy(turno => turno.UsuarioId)
+                .ThenBy(turno => turno.TipoTurnoId)
                 .Select(turno => (EventoRecurrente)turno)
                 .AsNoTracking()
                 .ToListAsync();

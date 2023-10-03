@@ -58,22 +58,6 @@ export const DeleteConfirm = (handleConfirmed) => {
         }).then((result) => {
             if (result.isConfirmed) {
                 handleConfirmed()
-                    .then(() => {
-                        Swal.fire({
-                            title: 'Eliminado!',
-                            text: 'Se ha procesado su solicitud correctamente.',
-                            icon: 'success',
-                            timer: 2000,
-                            timerProgressBar: true
-                        })
-                    })
-                    .catch(() => {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'No se pudo eliminar.',
-                            icon: 'error'
-                        })
-                    })
             }
         })
     )
@@ -89,6 +73,25 @@ export const LogoutConfirm = (handleConfirmed) => {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Cerrar',
             cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleConfirmed()
+            }
+        })
+    )
+}
+
+export const ComentarioDialog = (solicitud, handleConfirmed) => {
+    return (
+        Swal.fire({
+            title: 'Comentario',
+            input: 'text',
+            showCancelButton: true,
+            confirmButtonText: 'Guardar',
+            cancelButtonText: 'Cancelar',
+            preConfirm: (c) => {
+                solicitud.Comentario = c
+            },
         }).then((result) => {
             if (result.isConfirmed) {
                 handleConfirmed()

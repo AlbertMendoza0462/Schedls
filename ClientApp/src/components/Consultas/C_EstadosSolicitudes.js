@@ -1,12 +1,13 @@
 ﻿import React, { useContext, useEffect, useState } from 'react';
 import { ApiGet } from '../../Api';
 import LoadingPage from '../LoadingPage';
-import { AlertContext } from '../../Contexts';
+import { AlertContext, UserContext } from '../../Contexts';
 import { AlertMessage, ErrorAlert, SuccessAlert } from '../Alertas';
 import EstadoSolicitud from '../Registros/R_EstadoSolicitud';
 
 const EstadosSolicitudes = () => {
     const alertContext = useContext(AlertContext)
+    const userContext = useContext(UserContext)
     const [data, setData] = useState([])
     const [loading, setLoading] = useState([])
     const [isOpen, setIsOpen] = useState(false)
@@ -56,9 +57,10 @@ const EstadosSolicitudes = () => {
                     <tbody>
                         {data.map(d =>
                             <tr key={d.estadoSolicitudId} onClick={() => {
-                                setEntidad(d)
-                                setIsOpen(true)
-                                return
+                                if (userContext.usuarioEmpleado.IsAdmin) {
+                                    setEntidad(d)
+                                    setIsOpen(true)
+                                }
                             }}>
                                 <td>{d.estadoSolicitudId}</td>
                                 <td>{d.descripcion}</td>
@@ -83,12 +85,14 @@ const EstadosSolicitudes = () => {
                     <h1 id="tabelLabel" >Mantenimiento de Estados de Solicitudes</h1>
                     <p>This component demonstrates fetching data from the server.</p>
                 </div>
-                <div className="form-group">
-                    <input type="button" className="btn btn-primary" onClick={() => {
-                        setEntidad(null)
-                        setIsOpen(true)
-                    }} value="Nuevo" />
-                </div>
+                {(userContext.usuarioEmpleado.IsAdmin) ?
+                    <div className="form-group">
+                        <input type="button" className="btn btn-primary" onClick={() => {
+                            setEntidad(null)
+                            setIsOpen(true)
+                        }} value="Nuevo" />
+                    </div>
+                    : <></>}
             </div>
             {contents}
         </div>
